@@ -16,6 +16,7 @@ This project is very new and is open to contriubtions of any sort.
 I have included a sample Database so you may run it locally.
 
 **You will need to provide your own discord bot key**
+
 To do so:
 create a file called `config.json` and make it look like this:
 
