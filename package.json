@@ -1,0 +1,15 @@
+{
+  "name": "hall-of-fame-bot",
+  "version": "1.0.0",
+  "description": "A Discord Bot that displays the most up-voted messages",
+  "main": "index.js",
+  "scripts": {
+    "bot": "node bot.js"
+  },
+  "author": "Hayden Meloche",
+  "license": "ISC",
+  "dependencies": {
+    "discord": "^0.8.2",
+    "sqlite": "^2.8.0"
+  }
+}
