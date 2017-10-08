@@ -9,7 +9,7 @@
   "author": "Hayden Meloche",
   "license": "ISC",
   "dependencies": {
-    "discord": "^0.8.2",
+    "discord.js": "^11.2.1",
     "sqlite": "^2.8.0"
   }
 }
