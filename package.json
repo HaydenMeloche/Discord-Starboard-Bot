@@ -4,12 +4,12 @@
   "description": "A Discord Bot that displays the most up-voted messages",
   "main": "index.js",
   "scripts": {
-    "bot": "node bot.js"
+    "bot": "node src\main.js"
   },
   "author": "Hayden Meloche",
   "license": "ISC",
   "dependencies": {
-    "discord": "^0.8.2",
+    "discord.js": "^11.2.1",
     "sqlite": "^2.8.0"
   }
 }
