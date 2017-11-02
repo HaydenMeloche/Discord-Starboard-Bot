@@ -21,15 +21,33 @@ client.on('ready', () => {
 client.on('guildCreate', newGuild => {
     console.error;
     var name = GuildName(newGuild.name);
-    sql.run(`CREATE TABLE IF NOT EXISTS ${name} (author TEXT, message Text, score INTEGER)`);
+    sql.get(`SELECT score FROM ${guild} WHERE messageid ="${reaction.message.id}"`).then(row => {
+        if (!row) {
+            sql.run(`INSERT into Guilds (ServerName, ServerOwner, TopAmount) VALUES ("${name}", "${newGuild.owner}", "10")`);
+        } else {
+            sql.run(`Update ${guild} SET ServerOwner = ${newGuild.owner} where ServerName = "${name}"`);
+        }
+        }).catch(() => {
+            console.error;
+        });
+    sql.run(`CREATE TABLE IF NOT EXISTS ${name} (author TEXT, message Text, score INTEGER, messageid INTEGER)`)
+        .catch(() => {
+        console.error;
+    });
 });
-
-
-
 client.on('messageReactionAdd', reaction => {
     if (reaction.emoji.name === '⭐') {
-        var starCount = reaction.count.toPrecision();
-        
+        const guild = GuildName(reaction.message.guild.name);
+        const message = reaction.message;
+        sql.get(`SELECT score FROM ${guild} WHERE messageid ="${reaction.message.id}"`).then(row => {
+        if (!row) {
+            sql.run(`INSERT INTO ${guild} (author, message, score, messageid) VALUES (?, ?, ?, ?)`, [message.author.username+'#'+message.author.discriminator, message.content, 1, message.id]);
+        } else {
+            sql.run(`Update ${guild} SET score = score + 1 where messageid = "${message.id}"`);
+        }
+        }).catch(() => {
+            console.error;
+        });
     }
 }); 
 
@@ -37,7 +55,7 @@ client.on('message', msg => {
     if (msg.author.bot) return; // Ignore bots.
     if (msg.channel.type === "dm") return; // Ignore DM channels.
     if (msg.content === '!h') {
-        
+         msg.channel.fetchMessages({limit: 100}).then(messages => message.channel.bulkDelete(messages));
     }
 });
 

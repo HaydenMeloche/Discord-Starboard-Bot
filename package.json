@@ -4,7 +4,7 @@
   "description": "A Discord Bot that displays the most up-voted messages",
   "main": "index.js",
   "scripts": {
-    "bot": "node bot.js"
+    "bot": "node src\main.js"
   },
   "author": "Hayden Meloche",
   "license": "ISC",
