@@ -12,13 +12,15 @@ const sql = require("sqlite");
 sql.open("./database.sqlite");
 
 var reaction = '⭐';
+var botPrefix = '+';
+
 
 client.on('ready', () => {
     console.log(`Logged in as ${client.user.tag}`);
     client.user.setGame('developed by @root');
 });
 
-client.on('guildCreate', newGuild => {
+client.on('guildCreate', async newGuild => {
     console.error;
     var name = GuildName(newGuild.name);
     sql.get(`SELECT score FROM ${guild} WHERE messageid ="${reaction.message.id}"`).then(row => {
@@ -35,7 +37,7 @@ client.on('guildCreate', newGuild => {
         console.error;
     });
 });
-client.on('messageReactionAdd', reaction => {
+client.on('messageReactionAdd', async reaction => {
     if (reaction.emoji.name === '⭐') {
         const guild = GuildName(reaction.message.guild.name);
         const message = reaction.message;
@@ -51,27 +53,46 @@ client.on('messageReactionAdd', reaction => {
     }
 }); 
 
-client.on('message', msg => {
-    if (msg.author.bot) return; // Ignore bots.
-    if (msg.channel.type === "dm") return; // Ignore DM channels.
-    if (msg.content === '!h') {
-         msg.channel.fetchMessages({limit: 100}).then(messages => message.channel.bulkDelete(messages));
+client.on('message', async message => {
+    if (message.content.prefix === botPrefix) {
+        
+        //Ignore bots so we don't have botception
+        if (message.author.bot) return;
+
+        //Ignore DMs for now
+        if (message.channel.type === "dm") return;
+        
+        /**
+         * Test command for now
+         * Currently testing the bot can delete messages for the hall-of-fame channel
+         */
+        if (message.content.substring(1) === 'test') {
+            //need to implement permission check
+             msg.channel.fetchMessages({limit: 100}).then(messages => message.channel.bulkDelete(messages));
+        }
     }
 });
 
+/**
+ * Takes Discord server name and returns one that won't break the DB.
+ * @param {String} guild 
+ */
 function GuildName(guild) {
     return "Guild" + guild.replace(/[^a-zA-Z ]/g, "");
 }
 
+
+
 function writeLeaderboards() {
     const starboard = reaction.message.guild.channels.find('name', 'hall-of-fame');
     var embed = new Discord.RichEmbed()
-        .setAuthor(`Hall of fame nomination with ${starCount} stars`)
+        .setAuthor(`Hall of fame nomination with ${(starCount > 1 ? 'stars' : 'star' )}`)
         .addField(`Author:`, reaction.message.author.username)
         .addField('Message:', reaction.message.content)
         .setImage(reaction.message.author.avatarURL)
         .setFooter('Upvote this message using the ⭐ emoji!')
     starboard.send({embed});
 }
+
 
 client.login(token);
