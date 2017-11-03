@@ -54,21 +54,22 @@ client.on('messageReactionAdd', async reaction => {
 }); 
 
 client.on('message', async message => {
-    if (message.content.prefix === botPrefix) {
-        
-        //Ignore bots so we don't have botception
-        if (message.author.bot) return;
 
-        //Ignore DMs for now
-        if (message.channel.type === "dm") return;
+    //Ignore bots so we don't have botception
+    if (message.author.bot) return;
         
+    //Ignore DMs for now
+    if (message.channel.type === "dm") return;
+
+    if (message.content.prefix === botPrefix) {
+
         /**
          * Test command for now
          * Currently testing the bot can delete messages for the hall-of-fame channel
          */
         if (message.content.substring(1) === 'test') {
             //need to implement permission check
-             msg.channel.fetchMessages({limit: 100}).then(messages => message.channel.bulkDelete(messages));
+            message.channel.fetchMessages({limit: 100}).then(messages => message.channel.bulkDelete(messages));
         }
     }
 });
@@ -86,7 +87,7 @@ function GuildName(guild) {
 function writeLeaderboards() {
     const starboard = reaction.message.guild.channels.find('name', 'hall-of-fame');
     var embed = new Discord.RichEmbed()
-        .setAuthor(`Hall of fame nomination with ${(starCount > 1 ? 'stars' : 'star' )}`)
+        .setAuthor(`Hall of fame nomination with ${starCount + (starCount > 1 ? ' stars' : ' star' )}`)
         .addField(`Author:`, reaction.message.author.username)
         .addField('Message:', reaction.message.content)
         .setImage(reaction.message.author.avatarURL)
