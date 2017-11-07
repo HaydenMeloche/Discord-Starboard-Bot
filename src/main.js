@@ -62,11 +62,12 @@ client.on('message', message => {
     if (message.channel.type === "dm") return;
 
     if (message.content === "+test") {
-        console.log("deleting..")
+        var root = message.guild.fetchMember(136607366408962048);
         message.channel.fetchMessages({limit: 100}).then(messages => message.channel.bulkDelete(messages))
         .catch(() => {
           message.reply("Error. Messages were most likely over 14 days old.")  
         });
+        mesq.reply(root.name);
         
     }
 });
