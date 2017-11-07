@@ -2,9 +2,9 @@
   "name": "hall-of-fame-bot",
   "version": "1.0.0",
   "description": "A Discord Bot that displays the most up-voted messages",
-  "main": "index.js",
+  "main": "main.js",
   "scripts": {
-    "bot": "node src\main.js"
+    "bot": "node src/main.js"
   },
   "author": "Hayden Meloche",
   "license": "ISC",

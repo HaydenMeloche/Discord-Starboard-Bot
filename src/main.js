@@ -4,7 +4,7 @@ const client = new Discord.Client();
 //JSON Loads discord bot key
 //JSON has 1 value in it. "key" : "yourkey"
 const fs = require("fs");
-let config = JSON.parse(fs.readFileSync("./config.json", "utf8"));
+let config = JSON.parse(fs.readFileSync("src/config.json", "utf8"));
 let token = config["key"]; 
 
 //Opens up database
@@ -20,7 +20,7 @@ client.on('ready', () => {
     client.user.setGame('developed by @root');
 });
 
-client.on('guildCreate', async newGuild => {
+client.on('guildCreate', newGuild => {
     console.error;
     var name = GuildName(newGuild.name);
     sql.get(`SELECT score FROM ${guild} WHERE messageid ="${reaction.message.id}"`).then(row => {
@@ -37,7 +37,7 @@ client.on('guildCreate', async newGuild => {
         console.error;
     });
 });
-client.on('messageReactionAdd', async reaction => {
+client.on('messageReactionAdd', reaction => {
     if (reaction.emoji.name === '⭐') {
         const guild = GuildName(reaction.message.guild.name);
         const message = reaction.message;
@@ -53,7 +53,7 @@ client.on('messageReactionAdd', async reaction => {
     }
 }); 
 
-client.on('message', async message => {
+client.on('message', message => {
 
     //Ignore bots so we don't have botception
     if (message.author.bot) return;
@@ -61,16 +61,13 @@ client.on('message', async message => {
     //Ignore DMs for now
     if (message.channel.type === "dm") return;
 
-    if (message.content.prefix === botPrefix) {
-
-        /**
-         * Test command for now
-         * Currently testing the bot can delete messages for the hall-of-fame channel
-         */
-        if (message.content.substring(1) === 'test') {
-            //need to implement permission check
-            message.channel.fetchMessages({limit: 100}).then(messages => message.channel.bulkDelete(messages));
-        }
+    if (message.content === "+test") {
+        console.log("deleting..")
+        message.channel.fetchMessages({limit: 100}).then(messages => message.channel.bulkDelete(messages))
+        .catch(() => {
+          message.reply("Error. Messages were most likely over 14 days old.")  
+        });
+        
     }
 });
 
