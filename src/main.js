@@ -23,13 +23,19 @@ client.on('ready', () => {
 client.on('guildCreate', newGuild => {
     sql.get(`SELECT ServerName FROM Guilds WHERE ServerID ="${newGuild.id}"`).then(row => {
         if (!row) {
-            sql.run(`INSERT into Guilds (ServerName, ServerOwner, TopAmount, ServerID) VALUES ("${newGuild.name}", "${newGuild.owner.displayName+"#"+newGuild.owner.user.discriminator}", "10", "${newGuild.id}")`);
+            sql.run(`INSERT into Guilds (ServerName, ServerOwner, TopAmount, ServerID) VALUES ("${newGuild.name}", "${newGuild.owner.displayName+"#"+newGuild.owner.user.discriminator}", "10", "${newGuild.id}")`)
+            .catch(() => {
+                console.error;
+            });
             sql.run(`CREATE TABLE IF NOT EXISTS "${newGuild.id}" (author TEXT, message Text, score INTEGER, messageid INTEGER)`)
-                .catch(() => {
+             .catch(() => {
                 console.error;
             });
         } else {
-            sql.run(`Update Guilds SET ServerOwner = ${newGuild.owner.displayName} where ServerID = "${message.guild.id}"`);
+            sql.run(`Update Guilds SET ServerOwner = ${newGuild.owner.displayName} where ServerID = "${message.guild.id}"`)
+            .catch(() => {
+                console.error;
+            });
         }
         }).catch(() => {
             console.error;
@@ -41,9 +47,15 @@ client.on('messageReactionAdd', reaction => {
         const message = reaction.message;
         sql.get(`SELECT score FROM "${reaction.message.guild.id}" WHERE messageid ="${reaction.message.id}"`).then(row => {
         if (!row) {
-            sql.run(`INSERT INTO "${reaction.message.guild.id}" (author, message, score, messageid) VALUES (?, ?, ?, ?)`, [message.author.id, message.content, 1, message.id]);
+            sql.run(`INSERT INTO "${reaction.message.guild.id}" (author, message, score, messageid) VALUES (?, ?, ?, ?)`, [message.author.id, message.content, 1, message.id])
+            .catch(() => {
+                console.error;
+            });
         } else {
-            sql.run(`Update "${reaction.message.guild.id}" SET score = score + 1 where messageid = "${message.id}"`);
+            sql.run(`Update "${reaction.message.guild.id}" SET score = score + 1 where messageid = "${message.id}"`)
+            .catch(() => {
+                console.error;
+            });
         }
         }).catch(() => {
             console.error;
