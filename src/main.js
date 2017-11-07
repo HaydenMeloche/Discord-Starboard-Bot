@@ -39,11 +39,11 @@ client.on('guildCreate', newGuild => {
 client.on('messageReactionAdd', reaction => {
     if (reaction.emoji.name === '⭐') {
         const message = reaction.message;
-        sql.get(`SELECT score FROM ${reaction.guild.id} WHERE messageid ="${reaction.message.id}"`).then(row => {
+        sql.get(`SELECT score FROM "${reaction.message.guild.id}" WHERE messageid ="${reaction.message.id}"`).then(row => {
         if (!row) {
-            sql.run(`INSERT INTO ${reaction.guild.id} (author, message, score, messageid) VALUES (?, ?, ?, ?)`, [message.author.id, message.content, 1, message.id]);
+            sql.run(`INSERT INTO "${reaction.message.guild.id}" (author, message, score, messageid) VALUES (?, ?, ?, ?)`, [message.author.id, message.content, 1, message.id]);
         } else {
-            sql.run(`Update ${reaction.guild.id} SET score = score + 1 where messageid = "${message.id}"`);
+            sql.run(`Update "${reaction.message.guild.id}" SET score = score + 1 where messageid = "${message.id}"`);
         }
         }).catch(() => {
             console.error;
@@ -59,11 +59,13 @@ client.on('message', message => {
     //Ignore DMs for now
     if (message.channel.type === "dm") return;
 
-    if (message.content === "+test") {
+    if (message.content === "+refrsh") {
         message.channel.fetchMessages({limit: 100}).then(messages => message.channel.bulkDelete(messages))
         .catch(() => {
-          message.reply("Error. Messages were most likely over 14 days old.")  
-        });
+            message.reply("Error. Messages were most likely over 14 days old.")  
+        }); 
+
+        //Now cycle through and print database embeds
     }
     
 });
