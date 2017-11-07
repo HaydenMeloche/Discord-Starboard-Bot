@@ -9,7 +9,7 @@ let token = config["key"];
 
 //Opens up database
 const sql = require("sqlite");
-sql.open("./database.sqlite");
+sql.open("src/database.sqlite");
 
 var reaction = '⭐';
 var botPrefix = '+';
@@ -21,31 +21,29 @@ client.on('ready', () => {
 });
 
 client.on('guildCreate', newGuild => {
-    console.error;
-    var name = GuildName(newGuild.name);
-    sql.get(`SELECT score FROM ${guild} WHERE messageid ="${reaction.message.id}"`).then(row => {
+    sql.get(`SELECT ServerName FROM Guilds WHERE ServerID ="${newGuild.id}"`).then(row => {
         if (!row) {
-            sql.run(`INSERT into Guilds (ServerName, ServerOwner, TopAmount) VALUES ("${name}", "${newGuild.owner}", "10")`);
+            sql.run(`INSERT into Guilds (ServerName, ServerOwner, TopAmount, ServerID) VALUES ("${newGuild.name}", "${newGuild.owner.displayName+"#"+newGuild.owner.user.discriminator}", "10", "${newGuild.id}")`);
+            sql.run(`CREATE TABLE IF NOT EXISTS "${newGuild.id}" (author TEXT, message Text, score INTEGER, messageid INTEGER)`)
+                .catch(() => {
+                console.error;
+            });
         } else {
-            sql.run(`Update ${guild} SET ServerOwner = ${newGuild.owner} where ServerName = "${name}"`);
+            sql.run(`Update Guilds SET ServerOwner = ${newGuild.owner.displayName} where ServerID = "${message.guild.id}"`);
         }
         }).catch(() => {
             console.error;
         });
-    sql.run(`CREATE TABLE IF NOT EXISTS ${name} (author TEXT, message Text, score INTEGER, messageid INTEGER)`)
-        .catch(() => {
-        console.error;
-    });
 });
+
 client.on('messageReactionAdd', reaction => {
     if (reaction.emoji.name === '⭐') {
-        const guild = GuildName(reaction.message.guild.name);
         const message = reaction.message;
-        sql.get(`SELECT score FROM ${guild} WHERE messageid ="${reaction.message.id}"`).then(row => {
+        sql.get(`SELECT score FROM ${reaction.guild.id} WHERE messageid ="${reaction.message.id}"`).then(row => {
         if (!row) {
-            sql.run(`INSERT INTO ${guild} (author, message, score, messageid) VALUES (?, ?, ?, ?)`, [message.author.username+'#'+message.author.discriminator, message.content, 1, message.id]);
+            sql.run(`INSERT INTO ${reaction.guild.id} (author, message, score, messageid) VALUES (?, ?, ?, ?)`, [message.author.id, message.content, 1, message.id]);
         } else {
-            sql.run(`Update ${guild} SET score = score + 1 where messageid = "${message.id}"`);
+            sql.run(`Update ${reaction.guild.id} SET score = score + 1 where messageid = "${message.id}"`);
         }
         }).catch(() => {
             console.error;
@@ -62,25 +60,13 @@ client.on('message', message => {
     if (message.channel.type === "dm") return;
 
     if (message.content === "+test") {
-        var root = message.guild.fetchMember(136607366408962048);
         message.channel.fetchMessages({limit: 100}).then(messages => message.channel.bulkDelete(messages))
         .catch(() => {
           message.reply("Error. Messages were most likely over 14 days old.")  
         });
-        mesq.reply(root.name);
-        
     }
+    
 });
-
-/**
- * Takes Discord server name and returns one that won't break the DB.
- * @param {String} guild 
- */
-function GuildName(guild) {
-    return "Guild" + guild.replace(/[^a-zA-Z ]/g, "");
-}
-
-
 
 function writeLeaderboards() {
     const starboard = reaction.message.guild.channels.find('name', 'hall-of-fame');
