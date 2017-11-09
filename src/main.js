@@ -5,7 +5,7 @@ const client = new Discord.Client();
 //JSON has 1 value in it. "key" : "yourkey"
 const fs = require("fs");
 let config = JSON.parse(fs.readFileSync("src/config.json", "utf8"));
-let token = config["key"]; 
+let token = config["key"];
 
 //Opens up database
 const sql = require("sqlite");
@@ -25,22 +25,22 @@ client.on('guildCreate', newGuild => {
     sql.get(`SELECT ServerName FROM Guilds WHERE ServerID ="${newGuild.id}"`).then(row => {
         if (!row) {
             sql.run(`INSERT into Guilds (ServerName, ServerOwner, TopAmount, ServerID) VALUES ("${newGuild.name}", "${newGuild.owner.displayName+"#"+newGuild.owner.user.discriminator}", "10", "${newGuild.id}")`)
-            .catch(() => {
-                console.error;
-            });
+                .catch(() => {
+                    console.error;
+                });
             sql.run(`CREATE TABLE IF NOT EXISTS "${newGuild.id}" (author TEXT, message Text, score INTEGER, messageid INTEGER)`)
-             .catch(() => {
-                console.error;
-            });
+                .catch(() => {
+                    console.error;
+                });
         } else {
             sql.run(`Update Guilds SET ServerOwner = ${newGuild.owner.displayName} where ServerID = "${message.guild.id}"`)
-            .catch(() => {
-                console.error;
-            });
+                .catch(() => {
+                    console.error;
+                });
         }
-        }).catch(() => {
-            console.error;
-        });
+    }).catch(() => {
+        console.error;
+    });
 });
 
 /**
@@ -51,17 +51,17 @@ client.on('messageReactionRemove', reaction => {
     if (reaction.emoji.name === '⭐') {
         const message = reaction.message;
         sql.get(`SELECT score FROM "${reaction.message.guild.id}" WHERE messageid ="${reaction.message.id}"`).then(row => {
-        if (!row) {
-            sql.run(`INSERT INTO "${reaction.message.guild.id}" (author, message, score, messageid) VALUES (?, ?, ?, ?)`, [message.author.id, message.content, reaction.count.toPrecision, message.id])
-            .catch(() => {
-                console.error;
-            });
-        } else {
-            sql.run(`Update "${reaction.message.guild.id}" SET score = score - 1 where messageid = "${message.id}"`)
-            .catch(() => {
-                console.error;
-            });
-        }
+            if (!row) {
+                sql.run(`INSERT INTO "${reaction.message.guild.id}" (author, message, score, messageid) VALUES (?, ?, ?, ?)`, [message.author.id, message.content, reaction.count.toPrecision, message.id])
+                    .catch(() => {
+                        console.error;
+                    });
+            } else {
+                sql.run(`Update "${reaction.message.guild.id}" SET score = score - 1 where messageid = "${message.id}"`)
+                    .catch(() => {
+                        console.error;
+                    });
+            }
         }).catch(() => {
             console.error;
         });
@@ -77,22 +77,22 @@ client.on('messageReactionAdd', reaction => {
     if (reaction.emoji.name === '⭐') {
         const message = reaction.message;
         sql.get(`SELECT score FROM "${reaction.message.guild.id}" WHERE messageid ="${reaction.message.id}"`).then(row => {
-        if (!row) {
-            sql.run(`INSERT INTO "${reaction.message.guild.id}" (author, message, score, messageid) VALUES (?, ?, ?, ?)`, [message.author.id, message.content, reaction.count.toPrecision, message.id])
-            .catch(() => {
-                console.error;
-            });
-        } else {
-            sql.run(`Update "${reaction.message.guild.id}" SET score = score + 1 where messageid = "${message.id}"`)
-            .catch(() => {
-                console.error;
-            });
-        }
+            if (!row) {
+                sql.run(`INSERT INTO "${reaction.message.guild.id}" (author, message, score, messageid) VALUES (?, ?, ?, ?)`, [message.author.id, message.content, reaction.count.toPrecision, message.id])
+                    .catch(() => {
+                        console.error;
+                    });
+            } else {
+                sql.run(`Update "${reaction.message.guild.id}" SET score = score + 1 where messageid = "${message.id}"`)
+                    .catch(() => {
+                        console.error;
+                    });
+            }
         }).catch(() => {
             console.error;
         });
     }
-}); 
+});
 
 /**
  * Event handler for when a message is recieved.
@@ -101,19 +101,21 @@ client.on('message', message => {
 
     //Ignore bots so we don't have botception
     if (message.author.bot) return;
-        
+
     //Ignore DMs for now
     if (message.channel.type === "dm") return;
 
-    if (message.content === "+refrsh") {
-        message.channel.fetchMessages({limit: 100}).then(messages => message.channel.bulkDelete(messages))
-        .catch(() => {
-            message.reply("Error. Messages were most likely over 14 days old.")  
-        }); 
+    if (message.content === "+refresh") {
+        message.channel.fetchMessages({
+                limit: 100
+            }).then(messages => message.channel.bulkDelete(messages))
+            .catch(() => {
+                message.reply("Error. Messages were most likely over 14 days old.")
+            });
 
         //Now cycle through and print database embeds
     }
-    
+
 });
 
 /**
@@ -123,7 +125,7 @@ client.on('message', message => {
  * @param {number} userID 
  */
 function writeLeaderboards(message, stars, userID) {
-    const starboard = client.guilds.find('id','247186623782060042').channels.find('name', 'starboard');
+    const starboard = client.guilds.find('id', '247186623782060042').channels.find('name', 'starboard');
     var user = client.users.get('id') //needs to be fixed
     var embed = new Discord.RichEmbed()
         .setAuthor(`Hall of fame nomination with ${stars + (stars > 1 ? ' stars' : ' star' )}`)
@@ -131,7 +133,9 @@ function writeLeaderboards(message, stars, userID) {
         .addField('Message:', message)
         .setImage(user.avatarURL)
         .setFooter('Upvote this message using the ⭐ emoji!')
-    starboard.send({embed});
+    starboard.send({
+        embed
+    });
 }
 
 
