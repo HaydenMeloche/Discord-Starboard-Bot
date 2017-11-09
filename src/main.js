@@ -104,18 +104,52 @@ client.on('message', message => {
     //Ignore DMs for now
     if (message.channel.type === "dm") return;
 
-    if (message.content === "+refresh") {
-        message.channel.fetchMessages({
-                limit: 100
-            }).then(messages => message.channel.bulkDelete(messages))
-            .catch(() => {
-                message.reply("Error. Messages were most likely over 14 days old.")
-            });
+    if(message.content.indexOf(botPrefix) !== 0) return;
 
-        //Now cycle through and print database embeds
+    const args = message.content.slice(botPrefix.length).trim().split(/ +/g);
+    const command = args.shift().toLowerCase();
+
+    if (command === "refresh") {
+        writeStarboard(message, message.guild.id);
     }
 
+    if (command === "updatetop") {
+        if (message.author.id == message.guild.owner.id) {
+            const number = parseInt(args[0], 10);
+            sql.run(`Update Guilds SET TopAmount = ${number} where ServerID = "${message.guild.id}"`)
+            .catch(() => {
+                console.error;
+            });
+            message.reply(`Top ${number} will now be displayed`);
+        } else {
+            message.reply('Only the server owner can change this');
+        }
+    }
+
+    if (command === 'ping') {
+        message.reply('pong');
+    }
 });
+
+function writeStarboard(message, guildID) {
+    //Clear the channel
+    message.channel.fetchMessages({
+        limit: 100
+    }).then(messages => message.channel.bulkDelete(messages))
+    .catch(() => {
+        message.reply("Error. Messages were most likely over 14 days old or their is a permission problem");
+        return;
+    });
+
+    sql.each(`SELECT author, message, score FROM "${guildID}" ORDER BY Score DESC Limit 10`, function (err, row) {
+        const starboard = client.guilds.find('id', guildID).channels.find('name', 'starboard');
+        if (err) {
+            console.error;
+        } else {
+            writeEmbed(row.message, row.score, row.author, guildID);
+        };
+      });
+}
 
 /**
  * Takes a message and a user and prints an embed
@@ -123,12 +157,11 @@ client.on('message', message => {
  * @param {number} stars 
  * @param {number} userID 
  */
-function writeLeaderboards(message, stars, userID) {
-    const starboard = client.guilds.find('id', '247186623782060042').channels.find('name', 'starboard');
+function writeEmbed(message, stars, userID, guildID) {
+    const starboard = client.guilds.find('id', guildID).channels.find('name', 'starboard');
     var user = client.users.find('id', userID)
-    //var user = client.users.get('id') //needs to be fixed
     var embed = new Discord.RichEmbed()
-        .setAuthor(`Hall of fame nomination with ${stars + (stars > 1 ? ' stars' : ' star' )}`)
+        .setAuthor(`Starboard nomination with ${stars + (stars > 1 || stars == 0 ? ' stars' : ' star' )}`)
         .addField(`Author:`, user.tag)
         .addField('Message:', message)
         .setThumbnail(user.avatarURL)
