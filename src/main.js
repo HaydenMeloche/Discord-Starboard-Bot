@@ -159,7 +159,7 @@ function writeStarboard(message, guildID) {
  */
 function writeEmbed(message, stars, userID, guildID) {
     const starboard = client.guilds.find('id', guildID).channels.find('name', 'starboard');
-    var user = client.users.find('id', userID)
+    const user = client.users.find('id', userID);
     var embed = new Discord.RichEmbed()
         .setAuthor(`Starboard nomination with ${stars + (stars > 1 || stars == 0 ? ' stars' : ' star' )}`)
         .addField(`Author:`, user.tag)
