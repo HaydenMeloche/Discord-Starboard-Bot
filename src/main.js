@@ -18,7 +18,6 @@ var botPrefix = '+';
 client.on('ready', () => {
     console.log(`Logged in as ${client.user.tag}`);
     client.user.setGame('developed by @root');
-    writeLeaderboards('test message sent on startup2', 10, '136607366408962048');
 });
 
 client.on('guildCreate', newGuild => {
@@ -126,12 +125,13 @@ client.on('message', message => {
  */
 function writeLeaderboards(message, stars, userID) {
     const starboard = client.guilds.find('id', '247186623782060042').channels.find('name', 'starboard');
-    var user = client.users.get('id') //needs to be fixed
+    var user = client.users.find('id', userID)
+    //var user = client.users.get('id') //needs to be fixed
     var embed = new Discord.RichEmbed()
         .setAuthor(`Hall of fame nomination with ${stars + (stars > 1 ? ' stars' : ' star' )}`)
         .addField(`Author:`, user.tag)
         .addField('Message:', message)
-        .setImage(user.avatarURL)
+        .setThumbnail(user.avatarURL)
         .setFooter('Upvote this message using the ⭐ emoji!')
     starboard.send({
         embed
